@@ -41,18 +41,17 @@
 
     <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border-t-8 border-red-700 overflow-hidden">
         
-        <!-- Header with Centered Content -->
+        <!-- Header with Centered Title & Centered Month Box -->
         <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-md text-center">
             <div class="flex items-center justify-center gap-2">
                 <span class="text-3xl">🚩</span>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">जय माता जी मार्बल एंड ग्रेनाइट</h1>
             </div>
-            <p class="text-red-100 text-sm mt-1 font-medium">Jai Mata Ji Marble & Granite (पार्टनर खाता एवं दुकान खर्च)</p>
             
-            <!-- Centered Month Box -->
-            <div class="mt-4 inline-block bg-white/10 backdrop-blur-md px-6 py-2 rounded-xl border border-white/20 text-center mx-auto">
-                <span class="block text-xs text-red-100 font-medium uppercase tracking-wider">Month / महीना</span>
-                <input type="text" id="monthField" value="अगस्त - सितम्बर 2026" oninput="saveToLocalStorage()" class="bg-transparent text-white font-bold text-center focus:outline-none w-48 border-b border-white/40 text-base">
+            <!-- Month Box (Just Above the Input Field & Centered) -->
+            <div class="mt-4 inline-flex flex-col items-center justify-center bg-white/10 backdrop-blur-md px-6 py-2.5 rounded-xl border border-white/20 text-center">
+                <span class="text-xs text-red-100 font-semibold mb-1 text-center w-full">Month / महीना</span>
+                <input type="text" id="monthField" value="अगस्त - सितम्बर 2026" oninput="saveToLocalStorage()" class="bg-transparent text-white font-bold text-center focus:outline-none w-52 border-b border-white/40 text-base">
             </div>
         </div>
 
@@ -62,7 +61,7 @@
             <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
                 <div class="flex items-center gap-4">
                     <button id="micBtn" type="button" 
-                            onmousedown="startVoiceHold()" onmouseup="stopVoiceHold()" 
+                            onmousedown="startVoiceHold(event)" onmouseup="stopVoiceHold(event)" 
                             ontouchstart="startVoiceHold(event)" ontouchend="stopVoiceHold(event)"
                             class="bg-red-700 hover:bg-red-800 active:scale-95 text-white font-bold p-4 rounded-full shadow-lg transition flex items-center justify-center cursor-pointer select-none">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,7 +224,7 @@
             var lower = text.toLowerCase();
             var name = "Shivcharan Singh";
             
-            if (lower.indexOf("ganga") !== -1 || lower.indexOf("गंगा") !== -1 || lower.indexOf("gora") !== -1 || lower.indexOf("गौरा") !== -1 || lower.indexOf("ram") !== -1 || lower.indexOf("राम") !== -1) {
+            if (lower.indexOf("ganga") !== -1 || lower.indexOf("गंगा") !== -1 || lower.indexOf("gora") !== -1 || lower.indexOf("गौरा") !== -1 || lower.indexOf("ram") !== -1 || lower.indexOf("राम") !== -1 || lower.indexOf("g") !== -1) {
                 name = "Ganga Ram Gora";
             }
 
@@ -361,7 +360,7 @@
                         credit: credInput ? credInput.value : '',
                         remarks: remInput ? remInput.value : ''
                     });
-                }
+       }
                 localStorage.setItem('ledgerRows', JSON.stringify(rowsData));
                 var monthEl = document.getElementById('monthField');
                 if (monthEl) localStorage.setItem('ledgerMonth', monthEl.value);
