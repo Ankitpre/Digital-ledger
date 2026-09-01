@@ -10,51 +10,68 @@
         body { font-family: 'Hind', sans-serif; }
         @keyframes pulse-red {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 0.8; }
         }
-        .mic-active { animation: pulse-red 1s infinite; background-color: #dc2626 !important; }
+        .mic-active { animation: pulse-red 0.8s infinite; background-color: #dc2626 !important; }
+        
+        /* Print Styles for PDF */
         @media print {
             .no-print { display: none !important; }
-            body { background: white !important; padding: 0 !important; }
-            .shadow-xl { box-shadow: none !important; }
-            input { border: none !important; background: transparent !important; }
+            body { background: white !important; padding: 0 !important; font-size: 11pt !important; }
+            .shadow-xl, .shadow-md, .shadow-sm { box-shadow: none !important; }
+            table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; }
+            th, td { border: 1px solid #64748b !important; padding: 6px !important; text-align: left !important; }
+            th { background-color: #b91c1c !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            input { 
+                border: none !important; 
+                background: transparent !important; 
+                width: 100% !important; 
+                white-space: normal !important;
+                word-break: break-word !important;
+            }
+            .remarks-input {
+                white-space: normal !important;
+                word-wrap: break-word !important;
+                overflow: visible !important;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen p-3 md:p-6">
+<body class="bg-slate-100 text-slate-800 min-h-screen p-2 md:p-6">
 
     <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border-t-8 border-red-700 overflow-hidden">
         
-        <!-- Header with Hindi Main Title -->
-        <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-md">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-3xl">🚩</span>
-                        <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">जय माता जी मार्बल एंड ग्रेनाइट</h1>
-                    </div>
-                    <p class="text-red-100 text-sm mt-1 font-medium">Jai Mata Ji Marble & Granite (पार्टनर खाता एवं दुकान खर्च)</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20 text-right">
-                    <span class="block text-xs text-red-100">Month / महीना</span>
-                    <input type="text" id="monthField" value="अगस्त - सितम्बर 2026" oninput="saveToLocalStorage()" class="bg-transparent text-white font-bold text-center focus:outline-none w-44 border-b border-white/40">
-                </div>
+        <!-- Header with Centered Content -->
+        <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-md text-center">
+            <div class="flex items-center justify-center gap-2">
+                <span class="text-3xl">🚩</span>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">जय माता जी मार्बल एंड ग्रेनाइट</h1>
+            </div>
+            <p class="text-red-100 text-sm mt-1 font-medium">Jai Mata Ji Marble & Granite (पार्टनर खाता एवं दुकान खर्च)</p>
+            
+            <!-- Centered Month Box -->
+            <div class="mt-4 inline-block bg-white/10 backdrop-blur-md px-6 py-2 rounded-xl border border-white/20 text-center mx-auto">
+                <span class="block text-xs text-red-100 font-medium uppercase tracking-wider">Month / महीना</span>
+                <input type="text" id="monthField" value="अगस्त - सितम्बर 2026" oninput="saveToLocalStorage()" class="bg-transparent text-white font-bold text-center focus:outline-none w-48 border-b border-white/40 text-base">
             </div>
         </div>
 
         <div class="p-4 md:p-6 space-y-6">
 
-            <!-- Controls & Voice Bar -->
+            <!-- Voice Control Bar (Hold to Speak) -->
             <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
-                <div class="flex items-center gap-3">
-                    <button id="micBtn" type="button" onclick="toggleVoice()" class="bg-red-700 hover:bg-red-800 text-white font-bold p-4 rounded-full shadow-lg transition flex items-center justify-center cursor-pointer">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-4">
+                    <button id="micBtn" type="button" 
+                            onmousedown="startVoiceHold()" onmouseup="stopVoiceHold()" 
+                            ontouchstart="startVoiceHold(event)" ontouchend="stopVoiceHold(event)"
+                            class="bg-red-700 hover:bg-red-800 active:scale-95 text-white font-bold p-4 rounded-full shadow-lg transition flex items-center justify-center cursor-pointer select-none">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                         </svg>
                     </button>
                     <div>
                         <h3 class="font-bold text-red-900 text-base">बोलकर एंट्री करें (Voice Entry)</h3>
-                        <p class="text-xs text-red-600 font-medium" id="voiceStatus">माइक दबाकर बोलें</p>
+                        <p class="text-xs text-red-600 font-semibold" id="voiceStatus">🎙️ बटन दबाकर रखें और बोलें (Hold to Speak)</p>
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
@@ -76,9 +93,9 @@
                     <thead>
                         <tr class="bg-red-700 text-white text-xs uppercase tracking-wider">
                             <th class="p-3 w-28 text-center border-r border-red-600">Date (तिथि)</th>
-                            <th class="p-3 w-48 border-r border-red-600">Particular (नाम)</th>
-                            <th class="p-3 text-right w-32 border-r border-red-600">Debit (-) नाम</th>
-                            <th class="p-3 text-right w-32 border-r border-red-600">Credit (+) जमा</th>
+                            <th class="p-3 w-44 border-r border-red-600">Particular (नाम)</th>
+                            <th class="p-3 text-right w-28 border-r border-red-600">Debit (-) नाम</th>
+                            <th class="p-3 text-right w-28 border-r border-red-600">Credit (+) जमा</th>
                             <th class="p-3 border-r border-red-600">Remarks (विवरण / खर्च)</th>
                             <th class="p-3 w-12 text-center no-print">हटाएं</th>
                         </tr>
@@ -137,14 +154,15 @@
             try {
                 recognition = new SpeechRecognition();
                 recognition.lang = 'hi-IN';
-                recognition.continuous = false;
+                recognition.continuous = true;
+                recognition.interimResults = false;
 
                 recognition.onstart = function() {
                     isRecording = true;
                     var micBtn = document.getElementById('micBtn');
                     if (micBtn) micBtn.classList.add('mic-active');
                     var status = document.getElementById('voiceStatus');
-                    if (status) status.innerText = "सुन रहा हूँ... बोलिए!";
+                    if (status) status.innerText = "🔴 सुन रहा हूँ... बोलें!";
                 };
 
                 recognition.onend = function() {
@@ -152,7 +170,7 @@
                     var micBtn = document.getElementById('micBtn');
                     if (micBtn) micBtn.classList.remove('mic-active');
                     var status = document.getElementById('voiceStatus');
-                    if (status) status.innerText = "माइक दबाकर बोलें";
+                    if (status) status.innerText = "🎙️ बटन दबाकर रखें और बोलें (Hold to Speak)";
                 };
 
                 recognition.onerror = function(event) {
@@ -160,11 +178,12 @@
                     var micBtn = document.getElementById('micBtn');
                     if (micBtn) micBtn.classList.remove('mic-active');
                     var status = document.getElementById('voiceStatus');
-                    if (status) status.innerText = "माइक चालू नहीं हो सका। ब्राउज़र परमिशन जांचें।";
+                    if (status) status.innerText = "माइक अनुमति जांचें या Chrome में चलाएं।";
                 };
 
                 recognition.onresult = function(event) {
-                    var transcript = event.results[0][0].transcript;
+                    var lastIndex = event.results.length - 1;
+                    var transcript = event.results[lastIndex][0].transcript;
                     var status = document.getElementById('voiceStatus');
                     if (status) status.innerText = 'समझा: "' + transcript + '"';
                     parseAndAddRow(transcript);
@@ -174,26 +193,39 @@
             }
         }
 
-        function toggleVoice() {
+        function startVoiceHold(e) {
+            if (e && e.preventDefault && e.type === 'touchstart') e.preventDefault();
             if (!recognition) {
-                alert("इस ब्राउज़र में वॉयस सपोर्ट उपलब्ध नहीं है। कृपया Google Chrome का उपयोग करें।");
+                alert("वॉयस फीचर Google Chrome में सबसे अच्छा काम करता है।");
                 return;
             }
-            if (isRecording) {
-                recognition.stop();
-            } else {
+            if (!isRecording) {
                 try {
                     recognition.start();
-                } catch(e) {
-                    console.error(e);
+                } catch(err) {
+                    console.error(err);
                 }
+            }
+        }
+
+        function stopVoiceHold(e) {
+            if (e && e.preventDefault && e.type === 'touchend') e.preventDefault();
+            if (recognition && isRecording) {
+                setTimeout(function() {
+                    try {
+                        recognition.stop();
+                    } catch(err) {
+                        console.error(err);
+                    }
+                }, 400);
             }
         }
 
         function parseAndAddRow(text) {
             var lower = text.toLowerCase();
             var name = "Shivcharan Singh";
-            if (lower.indexOf("ganga") !== -1 || lower.indexOf("गंगा") !== -1 || lower.indexOf("gora") !== -1 || lower.indexOf("गौरा") !== -1) {
+            
+            if (lower.indexOf("ganga") !== -1 || lower.indexOf("गंगा") !== -1 || lower.indexOf("gora") !== -1 || lower.indexOf("गौरा") !== -1 || lower.indexOf("ram") !== -1 || lower.indexOf("राम") !== -1) {
                 name = "Ganga Ram Gora";
             }
 
@@ -260,17 +292,17 @@
                 var debitEl = row.querySelector('.debit-input');
                 var creditEl = row.querySelector('.credit-input');
 
-                var name = particularEl ? particularEl.value.toLowerCase() : '';
+                var name = particularEl ? particularEl.value.toLowerCase().trim() : '';
                 var d = debitEl ? (parseFloat(debitEl.value) || 0) : 0;
                 var c = creditEl ? (parseFloat(creditEl.value) || 0) : 0;
 
                 grandDebit += d;
                 grandCredit += c;
 
-                if (name.indexOf('shivcharan') !== -1 || name.indexOf('शिवचरण') !== -1) {
+                if (name.indexOf('shiv') !== -1 || name.indexOf('शिव') !== -1 || name.indexOf('singh') !== -1 || name.indexOf('सिंह') !== -1) {
                     scDebit += d;
                     scCredit += c;
-                } else if (name.indexOf('ganga') !== -1 || name.indexOf('गंगा') !== -1) {
+                } else if (name.indexOf('ganga') !== -1 || name.indexOf('गंगा') !== -1 || name.indexOf('gora') !== -1 || name.indexOf('गौरा') !== -1 || name.indexOf('ram') !== -1 || name.indexOf('राम') !== -1 || name.indexOf('g') !== -1) {
                     grDebit += d;
                     grCredit += c;
                 }
@@ -280,6 +312,7 @@
                 return num.toLocaleString('en-IN');
             };
 
+            // Shivcharan Singh Card
             var scCredEl = document.getElementById('scCredit');
             if (scCredEl) scCredEl.innerText = '₹ ' + formatINR(scCredit);
             var scDebEl = document.getElementById('scDebit');
@@ -288,14 +321,16 @@
             var scNetEl = document.getElementById('scNet');
             if (scNetEl) scNetEl.innerText = '₹ ' + formatINR(scNet) + (scNet >= 0 ? ' (Cr)' : ' (Dr)');
 
+            // Ganga Ram Gora Card
             var grCredEl = document.getElementById('grCredit');
             if (grCredEl) grCredEl.innerText = '₹ ' + formatINR(grCredit);
             var grDebEl = document.getElementById('grDebit');
-            if (grDebEl) grDebEl.innerText = '₹ ' + formatINR(grDeb);
+            if (grDebEl) grDebEl.innerText = '₹ ' + formatINR(grDebit);
             var grNet = grCredit - grDebit;
             var grNetEl = document.getElementById('grNet');
             if (grNetEl) grNetEl.innerText = '₹ ' + formatINR(grNet) + (grNet >= 0 ? ' (Cr)' : ' (Dr)');
 
+            // Shop Totals Card
             var grandCredEl = document.getElementById('grandCredit');
             if (grandCredEl) grandCredEl.innerText = '₹ ' + formatINR(grandCredit);
             var grandDebEl = document.getElementById('grandDebit');
