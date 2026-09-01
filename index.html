@@ -25,7 +25,6 @@
 
     <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border-t-8 border-red-700 overflow-hidden">
         
-        <!-- Red & White Header -->
         <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-md">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
@@ -33,7 +32,7 @@
                         <span class="text-2xl">🚩</span>
                         <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide uppercase">Jai Mata Ji Marble & Granite</h1>
                     </div>
-                    <p class="text-red-100 text-sm mt-1 font-medium">जय माता जी मार्बल एंड ग्रेनाइट (पाटनर खाता एवं दुकान खर्च)</p>
+                    <p class="text-red-100 text-sm mt-1 font-medium">जय माता जी मार्बल एंड ग्रेनाइट (पार्टनर खाता एवं दुकान खर्च)</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20 text-right">
                     <span class="block text-xs text-red-100">Month / महीना</span>
@@ -44,7 +43,6 @@
 
         <div class="p-4 md:p-6 space-y-6">
 
-            <!-- Voice Input Bar -->
             <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
                 <div class="flex items-center gap-3">
                     <button id="micBtn" onclick="toggleVoice()" class="bg-red-700 hover:bg-red-800 text-white font-bold p-3.5 rounded-full shadow-lg transition flex items-center justify-center">
@@ -67,7 +65,6 @@
                 </div>
             </div>
 
-            <!-- Ledger Table -->
             <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
                 <table class="w-full text-left text-sm border-collapse" id="ledgerTable">
                     <thead>
@@ -81,7 +78,6 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 bg-white">
-                        <!-- Default Example Rows -->
                         <tr class="hover:bg-red-50/50 transition">
                             <td class="p-2 border-r"><input type="text" value="05/08/26" class="w-full text-center bg-transparent"></td>
                             <td class="p-2 border-r"><input type="text" value="Shivcharan Singh" class="w-full font-semibold particular-input bg-transparent" oninput="calculateTotals()"></td>
@@ -102,10 +98,7 @@
                 </table>
             </div>
 
-            <!-- Summary Cards Section -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
-                
-                <!-- Shivcharan Summary Card -->
                 <div class="bg-white border-2 border-red-100 p-4 rounded-xl shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm border-b pb-2 mb-2 flex justify-between">
                         <span>👤 Shivcharan Singh</span>
@@ -118,7 +111,6 @@
                     </div>
                 </div>
 
-                <!-- Ganga Ram Summary Card -->
                 <div class="bg-white border-2 border-red-100 p-4 rounded-xl shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm border-b pb-2 mb-2 flex justify-between">
                         <span>👤 Ganga Ram Gora</span>
@@ -131,7 +123,6 @@
                     </div>
                 </div>
 
-                <!-- Grand Total & Shop Summary -->
                 <div class="bg-red-700 text-white p-4 rounded-xl shadow-md">
                     <h4 class="font-bold text-sm border-b border-red-500 pb-2 mb-2">📊 Overall Shop Totals</h4>
                     <div class="space-y-1 text-xs">
@@ -140,35 +131,31 @@
                         <div class="flex justify-between pt-2 border-t border-red-500 font-bold text-base"><span>Shop Net Balance:</span> <span id="grandNet">₹ 0</span></div>
                     </div>
                 </div>
-
             </div>
 
         </div>
     </div>
 
     <script>
-        // Speech Recognition Setup
         let isRecording = false;
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
 
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
-            recognition.lang = 'hi-IN'; // Hindi voice input
+            recognition.lang = 'hi-IN';
             recognition.continuous = false;
 
             recognition.onstart = () => {
                 isRecording = true;
                 document.getElementById('micBtn').classList.add('mic-active');
                 document.getElementById('voiceStatus').innerText = "सुन रहा हूँ... अब बोलिए!";
-                document.getElementById('voiceStatus').classList.add('text-red-700', 'font-bold');
             };
 
             recognition.onend = () => {
                 isRecording = false;
                 document.getElementById('micBtn').classList.remove('mic-active');
                 document.getElementById('voiceStatus').innerText = "माइक बटन दबाएं और बोलें";
-                document.getElementById('voiceStatus').classList.remove('font-bold');
             };
 
             recognition.onresult = (event) => {
@@ -177,7 +164,7 @@
                 parseAndAddRow(transcript);
             };
         } else {
-            document.getElementById('voiceStatus').innerText = "आपका ब्राउज़र वॉयस इनपुट सपोर्ट नहीं करता। मैनुअल एंट्री करें।";
+            document.getElementById('voiceStatus').innerText = "आपका ब्राउज़र वॉयस इनपुट सपोर्ट नहीं करता। मैन्युअल एंट्री करें।";
         }
 
         function toggleVoice() {
@@ -186,11 +173,8 @@
             else recognition.start();
         }
 
-        // Smart Voice Parser Logic
         function parseAndAddRow(text) {
             const lower = text.toLowerCase();
-            
-            // Partner Detection
             let name = "Shivcharan Singh";
             if (lower.includes("ganga") || lower.includes("गंगा") || lower.includes("gora") || lower.includes("गौरा")) {
                 name = "Ganga Ram Gora";
@@ -198,19 +182,16 @@
                 name = "Shivcharan Singh";
             }
 
-            // Extract Numbers (Amounts)
             const numbers = text.match(/\d+/g);
             let amount = numbers ? numbers[numbers.length - 1] : "";
 
-            // Credit vs Debit Detection
             let debit = "", credit = "";
             if (lower.includes("aaye") || lower.includes("आए") || lower.includes("आया") || lower.includes("jama") || lower.includes("जमा") || lower.includes("credit")) {
                 credit = amount;
             } else {
-                debit = amount; // default to debit for expense/bhada/diye
+                debit = amount;
             }
 
-            // Date Extraction (Default to Today if not specified)
             let dateStr = "05/08/26";
             if (numbers && numbers.length > 1) {
                 dateStr = `${numbers[0].padStart(2, '0')}/08/26`;
@@ -263,19 +244,16 @@
                 }
             });
 
-            // Update Shivcharan Summary
             document.getElementById('scCredit').innerText = '₹ ' + scCredit.toLocaleString('en-IN');
             document.getElementById('scDebit').innerText = '₹ ' + scDebit.toLocaleString('en-IN');
             const scNet = scCredit - scDebit;
             document.getElementById('scNet').innerText = '₹ ' + scNet.toLocaleString('en-IN') + (scNet >= 0 ? ' (Cr)' : ' (Dr)');
 
-            // Update Ganga Ram Summary
             document.getElementById('grCredit').innerText = '₹ ' + grCredit.toLocaleString('en-IN');
             document.getElementById('grDebit').innerText = '₹ ' + grDebit.toLocaleString('en-IN');
             const grNet = grCredit - grDebit;
             document.getElementById('grNet').innerText = '₹ ' + grNet.toLocaleString('en-IN') + (grNet >= 0 ? ' (Cr)' : ' (Dr)');
 
-            // Update Grand Totals
             document.getElementById('grandCredit').innerText = '₹ ' + grandCredit.toLocaleString('en-IN');
             document.getElementById('grandDebit').innerText = '₹ ' + grandDebit.toLocaleString('en-IN');
             const grandNet = grandCredit - grandDebit;
@@ -285,172 +263,5 @@
         window.onload = calculateTotals;
     </script>
 </body>
-</html>
-            <!-- Header Fields -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500">Account Name</label>
-                    <input type="text" placeholder="Enter Account Name" class="w-full font-semibold text-slate-800 border-b border-slate-300 focus:outline-none focus:border-blue-500 py-1">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500">Period / Duration</label>
-                    <input type="text" placeholder="e.g. August - September 2026" class="w-full font-semibold text-slate-800 border-b border-slate-300 focus:outline-none focus:border-blue-500 py-1">
-                </div>
-            </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="flex justify-between items-center mb-4 no-print">
-            <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition">
-                + Add Row
-            </button>
-            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-2 rounded-lg text-sm transition shadow">
-                🖨️ Export PDF / Print
-            </button>
-        </div>
-
-        <!-- Ledger Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse border border-slate-300 text-left text-sm" id="ledgerTable">
-                <thead>
-                    <tr class="bg-slate-800 text-white text-xs uppercase">
-                        <th class="border border-slate-600 p-2 text-center w-28">Date</th>
-                        <th class="border border-slate-600 p-2">Particulars</th>
-                        <th class="border border-slate-600 p-2 text-center w-20">C.B. Folio</th>
-                        <th class="border border-slate-600 p-2 text-right w-28">Debit (Dr)</th>
-                        <th class="border border-slate-600 p-2 text-right w-28">Credit (Cr)</th>
-                        <th class="border border-slate-600 p-2 w-48">Remarks / Balance</th>
-                        <th class="border border-slate-600 p-2 text-center w-12 no-print">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Blank Initial Rows -->
-                    <tr>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Particulars name..." class="w-full"></td>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
-                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
-                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Remarks..." class="w-full"></td>
-                        <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
-                    </tr>
-                    <tr>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Particulars name..." class="w-full"></td>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
-                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
-                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
-                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Remarks..." class="w-full"></td>
-                        <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr class="bg-slate-100 font-bold text-slate-900 border-t-2 border-slate-800">
-                        <td colspan="3" class="border border-slate-300 p-2 text-right uppercase">Total:</td>
-                        <td class="border border-slate-300 p-2 text-right text-red-600" id="totalDebit">0.00</td>
-                        <td class="border border-slate-300 p-2 text-right text-emerald-600" id="totalCredit">0.00</td>
-                        <td colspan="2" class="border border-slate-300 p-2"></td>
-                    </tr>
-                    <tr class="bg-slate-200 font-bold text-slate-900">
-                        <td colspan="3" class="border border-slate-300 p-2 text-right uppercase">Net Balance:</td>
-                        <td colspan="2" class="border border-slate-300 p-2 text-center text-blue-700 text-base" id="netBalance">0.00</td>
-                        <td colspan="2" class="border border-slate-300 p-2"></td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-
-        <!-- Footer Signatures -->
-        <div class="mt-12 flex justify-between items-center text-xs font-semibold text-slate-600 pt-6 border-t">
-            <div>Prepared By: __________________</div>
-            <div>Authorized Signature: __________________</div>
-        </div>
-    </div>
-
-    <script>
-        function addRow() {
-            const tbody = document.getElementById('tableBody');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="Particulars name..." class="w-full"></td>
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
-                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
-                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="Remarks..." class="w-full"></td>
-                <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
-            `;
-            tbody.appendChild(row);
-        }
-
-        function deleteRow(btn) {
-            btn.closest('tr').remove();
-            calculateTotals();
-        }
-
-        function calculateTotals() {
-            let totalDebit = 0;
-            let totalCredit = 0;
-
-            document.querySelectorAll('.debit-input').forEach(input => {
-                totalDebit += parseFloat(input.value) || 0;
-            });
-
-            document.querySelectorAll('.credit-input').forEach(input => {
-                totalCredit += parseFloat(input.value) || 0;
-            });
-
-            const net = totalCredit - totalDebit;
-
-            document.getElementById('totalDebit').innerText = totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2 });
-            document.getElementById('totalCredit').innerText = totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2 });
-            document.getElementById('netBalance').innerText = net.toLocaleString('en-US', { minimumFractionDigits: 2 }) + (net >= 0 ? ' (Credit)' : ' (Debit)');
-        }
-
-        window.onload = calculateTotals;
-    </script>
-</body>
-</html>
-            const tbody = document.getElementById('tableBody');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="विवरण" class="w-full"></td>
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
-                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
-                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
-                <td class="border border-slate-300 p-1"><input type="text" placeholder="टिप्पणी" class="w-full"></td>
-                <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
-            `;
-            tbody.appendChild(row);
-        }
-
-        function deleteRow(btn) {
-            btn.closest('tr').remove();
-            calculateTotals();
-        }
-
-        function calculateTotals() {
-            let totalDebit = 0;
-            let totalCredit = 0;
-
-            document.querySelectorAll('.debit-input').forEach(input => {
-                totalDebit += parseFloat(input.value) || 0;
-            });
-
-            document.querySelectorAll('.credit-input').forEach(input => {
-                totalCredit += parseFloat(input.value) || 0;
-            });
-
-            const net = totalCredit - totalDebit;
-
-            document.getElementById('totalDebit').innerText = '₹ ' + totalDebit.toLocaleString('en-IN');
-            document.getElementById('totalCredit').innerText = '₹ ' + totalCredit.toLocaleString('en-IN');
-            document.getElementById('netBalance').innerText = '₹ ' + net.toLocaleString('en-IN') + (net >= 0 ? ' (Credit)' : ' (Debit)');
-        }
-
-        window.onload = calculateTotals;
-    </script>
-</body>
-                                                                                                       </html>
-                                                                                                       
+                    </html>
+    
