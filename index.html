@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Digital Ledger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-padding { padding: 0 !important; }
+            body { background: white !important; font-size: 12px; }
+            input { border: none !important; background: transparent !important; }
+            .shadow-lg { box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 print-padding">
+
+    <div class="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-slate-200" id="ledger-content">
+        
+        <!-- Header -->
+        <div class="border-b-2 border-slate-800 pb-4 mb-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight text-slate-900">ACCOUNT LEDGER</h1>
+                    <p class="text-sm text-slate-500 font-medium">Financial Transaction Record</p>
+                </div>
+                <div class="text-right">
+                    <label class="block text-xs font-semibold text-slate-500">Page No.</label>
+                    <input type="text" placeholder="e.g. 01" class="text-right font-bold text-lg w-20 border rounded px-1 text-slate-700">
+                </div>
+            </div>
+
+            <!-- Header Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500">Account Name</label>
+                    <input type="text" placeholder="Enter Account Name" class="w-full font-semibold text-slate-800 border-b border-slate-300 focus:outline-none focus:border-blue-500 py-1">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500">Period / Duration</label>
+                    <input type="text" placeholder="e.g. August - September 2026" class="w-full font-semibold text-slate-800 border-b border-slate-300 focus:outline-none focus:border-blue-500 py-1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex justify-between items-center mb-4 no-print">
+            <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition">
+                + Add Row
+            </button>
+            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-2 rounded-lg text-sm transition shadow">
+                🖨️ Export PDF / Print
+            </button>
+        </div>
+
+        <!-- Ledger Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-slate-300 text-left text-sm" id="ledgerTable">
+                <thead>
+                    <tr class="bg-slate-800 text-white text-xs uppercase">
+                        <th class="border border-slate-600 p-2 text-center w-28">Date</th>
+                        <th class="border border-slate-600 p-2">Particulars</th>
+                        <th class="border border-slate-600 p-2 text-center w-20">C.B. Folio</th>
+                        <th class="border border-slate-600 p-2 text-right w-28">Debit (Dr)</th>
+                        <th class="border border-slate-600 p-2 text-right w-28">Credit (Cr)</th>
+                        <th class="border border-slate-600 p-2 w-48">Remarks / Balance</th>
+                        <th class="border border-slate-600 p-2 text-center w-12 no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Blank Initial Rows -->
+                    <tr>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Particulars name..." class="w-full"></td>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
+                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
+                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Remarks..." class="w-full"></td>
+                        <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+                    </tr>
+                    <tr>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Particulars name..." class="w-full"></td>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
+                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
+                        <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
+                        <td class="border border-slate-300 p-1"><input type="text" placeholder="Remarks..." class="w-full"></td>
+                        <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="bg-slate-100 font-bold text-slate-900 border-t-2 border-slate-800">
+                        <td colspan="3" class="border border-slate-300 p-2 text-right uppercase">Total:</td>
+                        <td class="border border-slate-300 p-2 text-right text-red-600" id="totalDebit">0.00</td>
+                        <td class="border border-slate-300 p-2 text-right text-emerald-600" id="totalCredit">0.00</td>
+                        <td colspan="2" class="border border-slate-300 p-2"></td>
+                    </tr>
+                    <tr class="bg-slate-200 font-bold text-slate-900">
+                        <td colspan="3" class="border border-slate-300 p-2 text-right uppercase">Net Balance:</td>
+                        <td colspan="2" class="border border-slate-300 p-2 text-center text-blue-700 text-base" id="netBalance">0.00</td>
+                        <td colspan="2" class="border border-slate-300 p-2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Footer Signatures -->
+        <div class="mt-12 flex justify-between items-center text-xs font-semibold text-slate-600 pt-6 border-t">
+            <div>Prepared By: __________________</div>
+            <div>Authorized Signature: __________________</div>
+        </div>
+    </div>
+
+    <script>
+        function addRow() {
+            const tbody = document.getElementById('tableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="Particulars name..." class="w-full"></td>
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
+                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
+                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="Remarks..." class="w-full"></td>
+                <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function deleteRow(btn) {
+            btn.closest('tr').remove();
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            document.querySelectorAll('.debit-input').forEach(input => {
+                totalDebit += parseFloat(input.value) || 0;
+            });
+
+            document.querySelectorAll('.credit-input').forEach(input => {
+                totalCredit += parseFloat(input.value) || 0;
+            });
+
+            const net = totalCredit - totalDebit;
+
+            document.getElementById('totalDebit').innerText = totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+            document.getElementById('totalCredit').innerText = totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2 });
+            document.getElementById('netBalance').innerText = net.toLocaleString('en-US', { minimumFractionDigits: 2 }) + (net >= 0 ? ' (Credit)' : ' (Debit)');
+        }
+
+        window.onload = calculateTotals;
+    </script>
+</body>
+</html>
+            const tbody = document.getElementById('tableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="DD/MM/YY" class="w-full text-center"></td>
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="विवरण" class="w-full"></td>
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="-" class="w-full text-center"></td>
+                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right debit-input"></td>
+                <td class="border border-slate-300 p-1"><input type="number" oninput="calculateTotals()" placeholder="0" class="w-full text-right credit-input"></td>
+                <td class="border border-slate-300 p-1"><input type="text" placeholder="टिप्पणी" class="w-full"></td>
+                <td class="border border-slate-300 p-1 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function deleteRow(btn) {
+            btn.closest('tr').remove();
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            document.querySelectorAll('.debit-input').forEach(input => {
+                totalDebit += parseFloat(input.value) || 0;
+            });
+
+            document.querySelectorAll('.credit-input').forEach(input => {
+                totalCredit += parseFloat(input.value) || 0;
+            });
+
+            const net = totalCredit - totalDebit;
+
+            document.getElementById('totalDebit').innerText = '₹ ' + totalDebit.toLocaleString('en-IN');
+            document.getElementById('totalCredit').innerText = '₹ ' + totalCredit.toLocaleString('en-IN');
+            document.getElementById('netBalance').innerText = '₹ ' + net.toLocaleString('en-IN') + (net >= 0 ? ' (Credit)' : ' (Debit)');
+        }
+
+        window.onload = calculateTotals;
+    </script>
+</body>
+                                                                                                       </html>
+                                                                                                       
