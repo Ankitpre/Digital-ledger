@@ -1,39 +1,291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Digital Ledger</title>
+    <title>Jai Mata Ji Marble & Granite - Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Hind', sans-serif; }
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        .mic-active { animation: pulse-red 1s infinite; background-color: #dc2626 !important; }
         @media print {
             .no-print { display: none !important; }
-            .print-padding { padding: 0 !important; }
-            body { background: white !important; font-size: 12px; }
+            body { background: white !important; padding: 0 !important; }
+            .shadow-xl { box-shadow: none !important; }
             input { border: none !important; background: transparent !important; }
-            .shadow-lg { box-shadow: none !important; }
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 p-4 md:p-8 print-padding">
+<body class="bg-slate-100 text-slate-800 min-h-screen p-3 md:p-6">
 
-    <div class="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-slate-200" id="ledger-content">
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border-t-8 border-red-700 overflow-hidden">
         
-        <!-- Header -->
-        <div class="border-b-2 border-slate-800 pb-4 mb-6">
-            <div class="flex justify-between items-start">
+        <!-- Red & White Header -->
+        <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-md">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight text-slate-900">ACCOUNT LEDGER</h1>
-                    <p class="text-sm text-slate-500 font-medium">Financial Transaction Record</p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🚩</span>
+                        <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide uppercase">Jai Mata Ji Marble & Granite</h1>
+                    </div>
+                    <p class="text-red-100 text-sm mt-1 font-medium">जय माता जी मार्बल एंड ग्रेनाइट (पाटनर खाता एवं दुकान खर्च)</p>
                 </div>
-                <div class="text-right">
-                    <label class="block text-xs font-semibold text-slate-500">Page No.</label>
-                    <input type="text" placeholder="e.g. 01" class="text-right font-bold text-lg w-20 border rounded px-1 text-slate-700">
+                <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20 text-right">
+                    <span class="block text-xs text-red-100">Month / महीना</span>
+                    <input type="text" value="अगस्त - सितम्बर 2026" class="bg-transparent text-white font-bold text-center focus:outline-none w-36">
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 md:p-6 space-y-6">
+
+            <!-- Voice Input Bar -->
+            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button id="micBtn" onclick="toggleVoice()" class="bg-red-700 hover:bg-red-800 text-white font-bold p-3.5 rounded-full shadow-lg transition flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </button>
+                    <div>
+                        <h3 class="font-bold text-red-900 text-base">बोलकर एंट्री करें (Voice Entry)</h3>
+                        <p class="text-xs text-red-600" id="voiceStatus">माइक बटन दबाएं और बोलें (जैसे: "5 august ko shivcharan singh ke pass 3000 rs aaye")</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button onclick="addRow()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 py-2 rounded-lg text-sm transition shadow flex-1 md:flex-none">
+                        + Manual Row
+                    </button>
+                    <button onclick="window.print()" class="bg-red-700 hover:bg-red-800 text-white font-semibold px-4 py-2 rounded-lg text-sm transition shadow flex-1 md:flex-none">
+                        🖨️ PDF / Print
+                    </button>
                 </div>
             </div>
 
+            <!-- Ledger Table -->
+            <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                <table class="w-full text-left text-sm border-collapse" id="ledgerTable">
+                    <thead>
+                        <tr class="bg-red-700 text-white text-xs uppercase tracking-wider">
+                            <th class="p-3 w-28 text-center border-r border-red-600">Date (तिथि)</th>
+                            <th class="p-3 w-48 border-r border-red-600">Particular (नाम)</th>
+                            <th class="p-3 text-right w-32 border-r border-red-600">Debit (-) नाम</th>
+                            <th class="p-3 text-right w-32 border-r border-red-600">Credit (+) जमा</th>
+                            <th class="p-3 border-r border-red-600">Remarks (विवरण / खर्च)</th>
+                            <th class="p-3 w-12 text-center no-print">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-200 bg-white">
+                        <!-- Default Example Rows -->
+                        <tr class="hover:bg-red-50/50 transition">
+                            <td class="p-2 border-r"><input type="text" value="05/08/26" class="w-full text-center bg-transparent"></td>
+                            <td class="p-2 border-r"><input type="text" value="Shivcharan Singh" class="w-full font-semibold particular-input bg-transparent" oninput="calculateTotals()"></td>
+                            <td class="p-2 border-r"><input type="number" value="" class="w-full text-right debit-input bg-transparent" oninput="calculateTotals()" placeholder="0"></td>
+                            <td class="p-2 border-r"><input type="number" value="3000" class="w-full text-right credit-input bg-transparent font-medium text-emerald-700" oninput="calculateTotals()" placeholder="0"></td>
+                            <td class="p-2 border-r"><input type="text" value="रुपये दुकान खाते में जमा आए" class="w-full bg-transparent"></td>
+                            <td class="p-2 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+                        </tr>
+                        <tr class="hover:bg-red-50/50 transition">
+                            <td class="p-2 border-r"><input type="text" value="08/08/26" class="w-full text-center bg-transparent"></td>
+                            <td class="p-2 border-r"><input type="text" value="Ganga Ram Gora" class="w-full font-semibold particular-input bg-transparent" oninput="calculateTotals()"></td>
+                            <td class="p-2 border-r"><input type="number" value="38000" class="w-full text-right debit-input bg-transparent font-medium text-red-600" oninput="calculateTotals()" placeholder="0"></td>
+                            <td class="p-2 border-r"><input type="number" value="" class="w-full text-right credit-input bg-transparent" oninput="calculateTotals()" placeholder="0"></td>
+                            <td class="p-2 border-r"><input type="text" value="South ke truck wale ka bhada" class="w-full bg-transparent"></td>
+                            <td class="p-2 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Cards Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+                
+                <!-- Shivcharan Summary Card -->
+                <div class="bg-white border-2 border-red-100 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm border-b pb-2 mb-2 flex justify-between">
+                        <span>👤 Shivcharan Singh</span>
+                        <span class="text-xs text-red-600">Partner 1</span>
+                    </h4>
+                    <div class="space-y-1 text-xs">
+                        <div class="flex justify-between"><span>Total Credit (+):</span> <span class="font-bold text-emerald-600" id="scCredit">₹ 0</span></div>
+                        <div class="flex justify-between"><span>Total Debit (-):</span> <span class="font-bold text-red-600" id="scDebit">₹ 0</span></div>
+                        <div class="flex justify-between pt-2 border-t font-bold text-sm"><span>Net Balance:</span> <span id="scNet" class="text-blue-700">₹ 0</span></div>
+                    </div>
+                </div>
+
+                <!-- Ganga Ram Summary Card -->
+                <div class="bg-white border-2 border-red-100 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm border-b pb-2 mb-2 flex justify-between">
+                        <span>👤 Ganga Ram Gora</span>
+                        <span class="text-xs text-red-600">Partner 2</span>
+                    </h4>
+                    <div class="space-y-1 text-xs">
+                        <div class="flex justify-between"><span>Total Credit (+):</span> <span class="font-bold text-emerald-600" id="grCredit">₹ 0</span></div>
+                        <div class="flex justify-between"><span>Total Debit (-):</span> <span class="font-bold text-red-600" id="grDebit">₹ 0</span></div>
+                        <div class="flex justify-between pt-2 border-t font-bold text-sm"><span>Net Balance:</span> <span id="grNet" class="text-blue-700">₹ 0</span></div>
+                    </div>
+                </div>
+
+                <!-- Grand Total & Shop Summary -->
+                <div class="bg-red-700 text-white p-4 rounded-xl shadow-md">
+                    <h4 class="font-bold text-sm border-b border-red-500 pb-2 mb-2">📊 Overall Shop Totals</h4>
+                    <div class="space-y-1 text-xs">
+                        <div class="flex justify-between"><span>Total Cash In (Credit):</span> <span class="font-bold text-emerald-300" id="grandCredit">₹ 0</span></div>
+                        <div class="flex justify-between"><span>Total Cash Out (Debit):</span> <span class="font-bold text-red-200" id="grandDebit">₹ 0</span></div>
+                        <div class="flex justify-between pt-2 border-t border-red-500 font-bold text-base"><span>Shop Net Balance:</span> <span id="grandNet">₹ 0</span></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Speech Recognition Setup
+        let isRecording = false;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN'; // Hindi voice input
+            recognition.continuous = false;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('micBtn').classList.add('mic-active');
+                document.getElementById('voiceStatus').innerText = "सुन रहा हूँ... अब बोलिए!";
+                document.getElementById('voiceStatus').classList.add('text-red-700', 'font-bold');
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                document.getElementById('micBtn').classList.remove('mic-active');
+                document.getElementById('voiceStatus').innerText = "माइक बटन दबाएं और बोलें";
+                document.getElementById('voiceStatus').classList.remove('font-bold');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('voiceStatus').innerText = `समझा: "${transcript}"`;
+                parseAndAddRow(transcript);
+            };
+        } else {
+            document.getElementById('voiceStatus').innerText = "आपका ब्राउज़र वॉयस इनपुट सपोर्ट नहीं करता। मैनुअल एंट्री करें।";
+        }
+
+        function toggleVoice() {
+            if (!recognition) return alert("Voice recognition not supported on this browser.");
+            if (isRecording) recognition.stop();
+            else recognition.start();
+        }
+
+        // Smart Voice Parser Logic
+        function parseAndAddRow(text) {
+            const lower = text.toLowerCase();
+            
+            // Partner Detection
+            let name = "Shivcharan Singh";
+            if (lower.includes("ganga") || lower.includes("गंगा") || lower.includes("gora") || lower.includes("गौरा")) {
+                name = "Ganga Ram Gora";
+            } else if (lower.includes("shivcharan") || lower.includes("शिवचरण")) {
+                name = "Shivcharan Singh";
+            }
+
+            // Extract Numbers (Amounts)
+            const numbers = text.match(/\d+/g);
+            let amount = numbers ? numbers[numbers.length - 1] : "";
+
+            // Credit vs Debit Detection
+            let debit = "", credit = "";
+            if (lower.includes("aaye") || lower.includes("आए") || lower.includes("आया") || lower.includes("jama") || lower.includes("जमा") || lower.includes("credit")) {
+                credit = amount;
+            } else {
+                debit = amount; // default to debit for expense/bhada/diye
+            }
+
+            // Date Extraction (Default to Today if not specified)
+            let dateStr = "05/08/26";
+            if (numbers && numbers.length > 1) {
+                dateStr = `${numbers[0].padStart(2, '0')}/08/26`;
+            }
+
+            addRow(dateStr, name, debit, credit, text);
+        }
+
+        function addRow(date = "", particular = "", debit = "", credit = "", remarks = "") {
+            const tbody = document.getElementById('tableBody');
+            const row = document.createElement('tr');
+            row.className = "hover:bg-red-50/50 transition";
+            row.innerHTML = `
+                <td class="p-2 border-r"><input type="text" value="${date}" placeholder="DD/MM/YY" class="w-full text-center bg-transparent"></td>
+                <td class="p-2 border-r"><input type="text" value="${particular}" placeholder="Partner / Name" class="w-full font-semibold particular-input bg-transparent" oninput="calculateTotals()"></td>
+                <td class="p-2 border-r"><input type="number" value="${debit}" placeholder="0" class="w-full text-right debit-input bg-transparent font-medium text-red-600" oninput="calculateTotals()"></td>
+                <td class="p-2 border-r"><input type="number" value="${credit}" placeholder="0" class="w-full text-right credit-input bg-transparent font-medium text-emerald-700" oninput="calculateTotals()"></td>
+                <td class="p-2 border-r"><input type="text" value="${remarks}" placeholder="Remarks / खर्च..." class="w-full bg-transparent"></td>
+                <td class="p-2 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+            `;
+            tbody.appendChild(row);
+            calculateTotals();
+        }
+
+        function deleteRow(btn) {
+            btn.closest('tr').remove();
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let scDebit = 0, scCredit = 0;
+            let grDebit = 0, grCredit = 0;
+            let grandDebit = 0, grandCredit = 0;
+
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const name = row.querySelector('.particular-input')?.value.toLowerCase() || '';
+                const d = parseFloat(row.querySelector('.debit-input')?.value) || 0;
+                const c = parseFloat(row.querySelector('.credit-input')?.value) || 0;
+
+                grandDebit += d;
+                grandCredit += c;
+
+                if (name.includes('shivcharan') || name.includes('शिवचरण')) {
+                    scDebit += d;
+                    scCredit += c;
+                } else if (name.includes('ganga') || name.includes('गंगा')) {
+                    grDebit += d;
+                    grCredit += c;
+                }
+            });
+
+            // Update Shivcharan Summary
+            document.getElementById('scCredit').innerText = '₹ ' + scCredit.toLocaleString('en-IN');
+            document.getElementById('scDebit').innerText = '₹ ' + scDebit.toLocaleString('en-IN');
+            const scNet = scCredit - scDebit;
+            document.getElementById('scNet').innerText = '₹ ' + scNet.toLocaleString('en-IN') + (scNet >= 0 ? ' (Cr)' : ' (Dr)');
+
+            // Update Ganga Ram Summary
+            document.getElementById('grCredit').innerText = '₹ ' + grCredit.toLocaleString('en-IN');
+            document.getElementById('grDebit').innerText = '₹ ' + grDebit.toLocaleString('en-IN');
+            const grNet = grCredit - grDebit;
+            document.getElementById('grNet').innerText = '₹ ' + grNet.toLocaleString('en-IN') + (grNet >= 0 ? ' (Cr)' : ' (Dr)');
+
+            // Update Grand Totals
+            document.getElementById('grandCredit').innerText = '₹ ' + grandCredit.toLocaleString('en-IN');
+            document.getElementById('grandDebit').innerText = '₹ ' + grandDebit.toLocaleString('en-IN');
+            const grandNet = grandCredit - grandDebit;
+            document.getElementById('grandNet').innerText = '₹ ' + grandNet.toLocaleString('en-IN');
+        }
+
+        window.onload = calculateTotals;
+    </script>
+</body>
+</html>
             <!-- Header Fields -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
