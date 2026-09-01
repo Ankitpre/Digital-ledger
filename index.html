@@ -45,7 +45,7 @@
 
             <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
                 <div class="flex items-center gap-3">
-                    <button id="micBtn" onclick="toggleVoice()" class="bg-red-700 hover:bg-red-800 text-white font-bold p-3.5 rounded-full shadow-lg transition flex items-center justify-center">
+                    <button id="micBtn" type="button" onclick="toggleVoice()" class="bg-red-700 hover:bg-red-800 text-white font-bold p-3.5 rounded-full shadow-lg transition flex items-center justify-center cursor-pointer">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                         </svg>
@@ -56,13 +56,13 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                    <button onclick="addRow()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-3 py-2 rounded-lg text-xs transition shadow">
+                    <button type="button" onclick="addRow()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 py-2 rounded-lg text-xs transition shadow cursor-pointer">
                         + Manual Row
                     </button>
-                    <button onclick="window.print()" class="bg-red-700 hover:bg-red-800 text-white font-semibold px-3 py-2 rounded-lg text-xs transition shadow">
+                    <button type="button" onclick="window.print()" class="bg-red-700 hover:bg-red-800 text-white font-semibold px-4 py-2 rounded-lg text-xs transition shadow cursor-pointer">
                         🖨️ PDF / Print
                     </button>
-                    <button onclick="clearAllData()" class="bg-gray-200 hover:bg-gray-300 text-red-700 font-semibold px-3 py-2 rounded-lg text-xs transition">
+                    <button type="button" onclick="clearAllData()" class="bg-gray-200 hover:bg-gray-300 text-red-700 font-semibold px-4 py-2 rounded-lg text-xs transition cursor-pointer">
                         🗑️ Reset All
                     </button>
                 </div>
@@ -135,27 +135,47 @@
 
             recognition.onstart = () => {
                 isRecording = true;
-                document.getElementById('micBtn').classList.add('mic-active');
-                document.getElementById('voiceStatus').innerText = "सुन रहा हूँ... बोलिए!";
+                const micBtn = document.getElementById('micBtn');
+                if (micBtn) micBtn.classList.add('mic-active');
+                const status = document.getElementById('voiceStatus');
+                if (status) status.innerText = "सुन रहा हूँ... बोलिए!";
             };
 
             recognition.onend = () => {
                 isRecording = false;
-                document.getElementById('micBtn').classList.remove('mic-active');
-                document.getElementById('voiceStatus').innerText = "माइक दबाकर बोलें";
+                const micBtn = document.getElementById('micBtn');
+                if (micBtn) micBtn.classList.remove('mic-active');
+                const status = document.getElementById('voiceStatus');
+                if (status) status.innerText = "माइक दबाकर बोलें";
+            };
+
+            recognition.onerror = (event) => {
+                isRecording = false;
+                const micBtn = document.getElementById('micBtn');
+                if (micBtn) micBtn.classList.remove('mic-active');
+                const status = document.getElementById('voiceStatus');
+                if (status) status.innerText = "माइक की अनुमति (Permission) दें या Chrome में चलाएं।";
             };
 
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
-                document.getElementById('voiceStatus').innerText = `समझा: "${transcript}"`;
+                const status = document.getElementById('voiceStatus');
+                if (status) status.innerText = `समझा: "${transcript}"`;
                 parseAndAddRow(transcript);
             };
         }
 
         function toggleVoice() {
-            if (!recognition) return alert("वॉयस सपोर्ट इस ब्राउज़र में उपलब्ध नहीं है। Chrome का उपयोग करें।");
-            if (isRecording) recognition.stop();
-            else recognition.start();
+            if (!recognition) return alert("वॉयस फीचर Google Chrome ब्राउज़र में सबसे अच्छा काम करता है।");
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch(e) {
+                    console.error(e);
+                }
+            }
         }
 
         function parseAndAddRow(text) {
@@ -180,25 +200,5 @@
                 dateStr = `${numbers[0].padStart(2, '0')}/08/26`;
             }
 
-            addRow(dateStr, name, debit, credit, text);
-        }
-
-        function addRow(date = "", particular = "", debit = "", credit = "", remarks = "") {
-            const tbody = document.getElementById('tableBody');
-            const row = document.createElement('tr');
-            row.className = "hover:bg-red-50/50 transition";
-            row.innerHTML = `
-                <td class="p-2 border-r"><input type="text" value="${date}" placeholder="DD/MM/YY" class="w-full text-center bg-transparent date-input" oninput="calculateTotals()"></td>
-                <td class="p-2 border-r"><input type="text" value="${particular}" placeholder="Partner Name" class="w-full font-semibold particular-input bg-transparent" oninput="calculateTotals()"></td>
-                <td class="p-2 border-r"><input type="number" value="${debit}" placeholder="0" class="w-full text-right debit-input bg-transparent font-medium text-red-600" oninput="calculateTotals()"></td>
-                <td class="p-2 border-r"><input type="number" value="${credit}" placeholder="0" class="w-full text-right credit-input bg-transparent font-medium text-emerald-700" oninput="calculateTotals()"></td>
-                <td class="p-2 border-r"><input type="text" value="${remarks}" placeholder="Remarks..." class="w-full remarks-input bg-transparent" oninput="calculateTotals()"></td>
-                <td class="p-2 text-center no-print"><button onclick="deleteRow(this)" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
-            `;
-            tbody.appendChild(row);
-            calculateTotals();
-        }
-
-        function deleteRow(btn) {
-            btn.closest('tr').
-                  
+            addRow(dateStr,
+    
