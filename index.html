@@ -229,7 +229,7 @@
                 name = "Shivcharan Singh";
             }
 
-            // 2. Remarks Detection (Only if 'remark' / 'rimaark' / 'रिमार्क' / 'रीमार्क' / 'विवरण' is spoken)
+            // 2. Remarks Detection (Only if 'remarks' / 'rimaarks' / 'रिमार्क' / 'रीमार्क' / 'विवरण' is spoken)
             var remarks = "";
             var remarkMatch = text.match(/(?:remark|rimaark|रिमार्क|रीमार्क|विवरण)\s*(.*)/i);
             if (remarkMatch && remarkMatch[1]) {
