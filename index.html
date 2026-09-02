@@ -6,6 +6,11 @@
     <title>जय माता जी मार्बल एंड ग्रेनाइट - डिजिटल खाता</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         body { font-family: 'Hind', sans-serif; }
         @keyframes pulse-red {
@@ -14,7 +19,6 @@
         }
         .mic-active { animation: pulse-red 0.8s infinite; background-color: #dc2626 !important; }
         
-        /* Print Styles for PDF */
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; padding: 0 !important; font-size: 11pt !important; }
@@ -22,18 +26,8 @@
             table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; }
             th, td { border: 1px solid #64748b !important; padding: 6px !important; text-align: left !important; }
             th { background-color: #b91c1c !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            input { 
-                border: none !important; 
-                background: transparent !important; 
-                width: 100% !important; 
-                white-space: normal !important;
-                word-break: break-word !important;
-            }
-            .remarks-input {
-                white-space: normal !important;
-                word-wrap: break-word !important;
-                overflow: visible !important;
-            }
+            input { border: none !important; background: transparent !important; width: 100% !important; white-space: normal !important; word-break: break-word !important; }
+            .remarks-input { white-space: normal !important; word-wrap: break-word !important; overflow: visible !important; }
         }
     </style>
 </head>
@@ -41,6 +35,7 @@
 
     <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border-t-8 border-red-700 overflow-hidden">
         
+        <!-- Header -->
         <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-md text-center">
             <div class="flex items-center justify-center gap-2">
                 <span class="text-3xl">🚩</span>
@@ -49,12 +44,18 @@
             
             <div class="mt-4 inline-flex flex-col items-center justify-center bg-white/10 backdrop-blur-md px-6 py-2.5 rounded-xl border border-white/20 text-center">
                 <span class="text-xs text-red-100 font-semibold mb-1 text-center w-full">Month / महीना</span>
-                <input type="text" id="monthField" value="अगस्त - सितम्बर 2026" oninput="saveToLocalStorage()" class="bg-transparent text-white font-bold text-center focus:outline-none w-52 border-b border-white/40 text-base">
+                <input type="text" id="monthField" value="अगस्त - सितम्बर 2026" oninput="saveDataToCloud()" class="bg-transparent text-white font-bold text-center focus:outline-none w-52 border-b border-white/40 text-base">
             </div>
         </div>
 
         <div class="p-4 md:p-6 space-y-6">
 
+            <!-- Real-Time Sync Indicator Bar -->
+            <div id="syncStatus" class="text-xs text-center font-semibold text-emerald-700 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                🟢 Real-Time Cloud Sync एक्टिव है (सभी मोबाइल लाइव जुड़े हैं)
+            </div>
+
+            <!-- Voice Control Bar -->
             <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
                 <div class="flex items-center gap-4">
                     <button id="micBtn" type="button" 
@@ -83,23 +84,26 @@
                 </div>
             </div>
 
+            <!-- Ledger Table -->
             <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
                 <table class="w-full text-left text-sm border-collapse" id="ledgerTable">
                     <thead>
                         <tr class="bg-red-700 text-white text-xs uppercase tracking-wider">
                             <th class="p-3 w-28 text-center border-r border-red-600">Date (तिथि)</th>
                             <th class="p-3 w-44 border-r border-red-600">Particular (नाम)</th>
-                            <th class="p-3 text-right w-28 border-r border-red-600">Debit (-) नामे </th>
+                            <th class="p-3 text-right w-28 border-r border-red-600">Debit (-) नाम</th>
                             <th class="p-3 text-right w-28 border-r border-red-600">Credit (+) जमा</th>
                             <th class="p-3 border-r border-red-600">Remarks (विवरण / खर्च)</th>
                             <th class="p-3 w-12 text-center no-print">हटाएं</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 bg-white">
-                        </tbody>
+                        <!-- Dynamic Rows -->
+                    </tbody>
                 </table>
             </div>
 
+            <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
                 <div class="bg-white border-2 border-red-100 p-4 rounded-xl shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm border-b pb-2 mb-2 flex justify-between">
@@ -139,6 +143,29 @@
     </div>
 
     <script>
+        // YOUR FIREBASE CONFIGURATION
+        var firebaseConfig = {
+            apiKey: "AIzaSyBUcLztSmACQgYOebQ58NK8mmGo5cs8hV4",
+            authDomain: "jmd-khata.firebaseapp.com",
+            databaseURL: "https://jmd-khata-default-rtdb.firebaseio.com",
+            projectId: "jmd-khata",
+            storageBucket: "jmd-khata.firebasestorage.app",
+            messagingSenderId: "399270602014",
+            appId: "1:399270602014:web:83e4f486c8f6f6ce35150f",
+            measurementId: "G-WXE69Z2MT0"
+        };
+
+        var db = null;
+        var isRemoteUpdate = false;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.database();
+        } catch(e) {
+            console.error("Firebase init error:", e);
+        }
+
         var isRecording = false;
         var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         var recognition = null;
@@ -193,11 +220,7 @@
                 return;
             }
             if (!isRecording) {
-                try {
-                    recognition.start();
-                } catch(err) {
-                    console.error(err);
-                }
+                try { recognition.start(); } catch(err) { console.error(err); }
             }
         }
 
@@ -205,11 +228,7 @@
             if (e && e.preventDefault && e.type === 'touchend') e.preventDefault();
             if (recognition && isRecording) {
                 setTimeout(function() {
-                    try {
-                        recognition.stop();
-                    } catch(err) {
-                        console.error(err);
-                    }
+                    try { recognition.stop(); } catch(err) { console.error(err); }
                 }, 400);
             }
         }
@@ -217,7 +236,6 @@
         function parseAndAddRow(text) {
             var lower = text.toLowerCase().trim();
 
-            // 1. Partner Name Detection
             var name = "Shivcharan Singh";
             if (lower.indexOf("ganga") !== -1 || lower.indexOf("गंगा") !== -1 || 
                 lower.indexOf("gora") !== -1 || lower.indexOf("गौरा") !== -1 || 
@@ -229,17 +247,14 @@
                 name = "Shivcharan Singh";
             }
 
-            // 2. Remarks Detection (Only if 'remarks' / 'rimaarks' / 'रिमार्क' / 'रीमार्क' / 'विवरण' is spoken)
             var remarks = "";
             var remarkMatch = text.match(/(?:remark|rimaark|रिमार्क|रीमार्क|विवरण)\s*(.*)/i);
             if (remarkMatch && remarkMatch[1]) {
                 remarks = remarkMatch[1].trim();
             }
 
-            // Text portion before 'remark' for parsing date and amount clean
             var mainText = text.split(/(?:remark|rimaark|रिमार्क|रीमार्क|विवरण)/i)[0].toLowerCase();
 
-            // 3. Amount & Credit/Debit Detection
             var numbers = mainText.match(/\d+/g);
             var isCredit = (mainText.indexOf("aaye") !== -1 || mainText.indexOf("आए") !== -1 || 
                             mainText.indexOf("आया") !== -1 || mainText.indexOf("aaya") !== -1 || 
@@ -249,7 +264,6 @@
             var amount = "";
             var dayVal = null;
 
-            // Month mapping
             var monthsMap = {
                 "january": "01", "जनवरी": "01", "jan": "01",
                 "february": "02", "फरवरी": "02", "feb": "02",
@@ -285,7 +299,6 @@
                 amount = numbers[0];
             }
 
-            // Today's date fallback
             var today = new Date();
             var curDay = today.getDate() < 10 ? "0" + today.getDate() : "" + today.getDate();
             var curMonth = (today.getMonth() + 1) < 10 ? "0" + (today.getMonth() + 1) : "" + (today.getMonth() + 1);
@@ -343,7 +356,6 @@
                 var particularEl = row.querySelector('.particular-input');
                 var debitEl = row.querySelector('.debit-input');
                 var creditEl = row.querySelector('.credit-input');
-
                 var name = particularEl ? particularEl.value.toLowerCase().trim() : '';
                 var d = debitEl ? (parseFloat(debitEl.value) || 0) : 0;
                 var c = creditEl ? (parseFloat(creditEl.value) || 0) : 0;
@@ -354,16 +366,14 @@
                 if (name.indexOf('shiv') !== -1 || name.indexOf('शिव') !== -1 || name.indexOf('singh') !== -1 || name.indexOf('सिंह') !== -1) {
                     scDebit += d;
                     scCredit += c;
-                } else if (name.indexOf('ganga') !== -1 || name.indexOf('गंगा') !== -1 || name.indexOf('gora') !== -1 || name.indexOf('गौरा') !== -1 || name.indexOf('ram') !== -1 || name.indexOf('राम') !== -1 || name.indexOf('g') !== -1) {
+                } else if (name.indexOf('ganga') !== -1 || name.indexOf('गंगा') !== -1 || name.indexOf('gora') !== -1 || name.indexOf('गौरा') !== -1 || name.indexOf('ram') !== -1 || name.indexOf('राम') !== -1) {
                     grDebit += d;
                     grCredit += c;
                 }
             }
-            var formatINR = function(num) {
-                return num.toLocaleString('en-IN');
-            };
 
-            // Shivcharan Singh Card
+            var formatINR = function(num) { return num.toLocaleString('en-IN'); };
+
             var scCredEl = document.getElementById('scCredit');
             if (scCredEl) scCredEl.innerText = '₹ ' + formatINR(scCredit);
             var scDebEl = document.getElementById('scDebit');
@@ -372,7 +382,6 @@
             var scNetEl = document.getElementById('scNet');
             if (scNetEl) scNetEl.innerText = '₹ ' + formatINR(scNet) + (scNet >= 0 ? ' (Cr)' : ' (Dr)');
 
-            // Ganga Ram Gora Card
             var grCredEl = document.getElementById('grCredit');
             if (grCredEl) grCredEl.innerText = '₹ ' + formatINR(grCredit);
             var grDebEl = document.getElementById('grDebit');
@@ -381,7 +390,6 @@
             var grNetEl = document.getElementById('grNet');
             if (grNetEl) grNetEl.innerText = '₹ ' + formatINR(grNet) + (grNet >= 0 ? ' (Cr)' : ' (Dr)');
 
-            // Shop Totals Card
             var grandCredEl = document.getElementById('grandCredit');
             if (grandCredEl) grandCredEl.innerText = '₹ ' + formatINR(grandCredit);
             var grandDebEl = document.getElementById('grandDebit');
@@ -390,78 +398,94 @@
             var grandNetEl = document.getElementById('grandNet');
             if (grandNetEl) grandNetEl.innerText = '₹ ' + formatINR(grandNet);
 
-            saveToLocalStorage();
+            if (!isRemoteUpdate) {
+                saveDataToCloud();
+            }
         }
 
-        function saveToLocalStorage() {
+        function saveDataToCloud() {
+            if (!db) return;
             try {
                 var rowsData = [];
                 var rows = document.querySelectorAll('#tableBody tr');
                 for (var i = 0; i < rows.length; i++) {
                     var r = rows[i];
-                    var dInput = r.querySelector('.date-input');
-                    var pInput = r.querySelector('.particular-input');
-                    var debInput = r.querySelector('.debit-input');
-                    var credInput = r.querySelector('.credit-input');
-                    var remInput = r.querySelector('.remarks-input');
+                    var dIn = r.querySelector('.date-input');
+                    var pIn = r.querySelector('.particular-input');
+                    var debIn = r.querySelector('.debit-input');
+                    var credIn = r.querySelector('.credit-input');
+                    var remIn = r.querySelector('.remarks-input');
 
                     rowsData.push({
-                        date: dInput ? dInput.value : '',
-                        particular: pInput ? pInput.value : '',
-                        debit: debInput ? debInput.value : '',
-                        credit: credInput ? credInput.value : '',
-                        remarks: remInput ? remInput.value : ''
+                        date: dIn ? dIn.value : '',
+                        particular: pIn ? pIn.value : '',
+                        debit: debIn ? debIn.value : '',
+                        credit: credIn ? credIn.value : '',
+                        remarks: remIn ? remIn.value : ''
                     });
                 }
-                localStorage.setItem('ledgerRows', JSON.stringify(rowsData));
-                var monthEl = document.getElementById('monthField');
-                if (monthEl) localStorage.setItem('ledgerMonth', monthEl.value);
+                var mEl = document.getElementById('monthField');
+                var monthVal = mEl ? mEl.value : '';
+                
+                db.ref('khataData').set({
+                    month: monthVal,
+                    rows: rowsData,
+                    updatedAt: Date.now()
+                });
             } catch(e) {
-                console.error(e);
+                console.error("Cloud Save Error:", e);
             }
         }
 
-        function loadFromLocalStorage() {
-            try {
-                var savedMonth = localStorage.getItem('ledgerMonth');
-                var monthEl = document.getElementById('monthField');
-                if (savedMonth && monthEl) monthEl.value = savedMonth;
+        function listenToCloud() {
+            if (!db) return;
+            db.ref('khataData').on('value', function(snapshot) {
+                var data = snapshot.val();
+                if (!data) return;
 
-                var savedRowsStr = localStorage.getItem('ledgerRows');
-                var savedRows = savedRowsStr ? JSON.parse(savedRowsStr) : [];
+                isRemoteUpdate = true;
+
+                if (data.month) {
+                    var monthEl = document.getElementById('monthField');
+                    if (monthEl && monthEl.value !== data.month) {
+                        monthEl.value = data.month;
+                    }
+                }
+
                 var tbody = document.getElementById('tableBody');
                 if (tbody) tbody.innerHTML = '';
-                
-                if (savedRows && savedRows.length > 0) {
-                    for (var i = 0; i < savedRows.length; i++) {
-                        var r = savedRows[i];
+
+                if (data.rows && data.rows.length > 0) {
+                    for (var i = 0; i < data.rows.length; i++) {
+                        var r = data.rows[i];
                         addRow(r.date, r.particular, r.debit, r.credit, r.remarks);
                     }
                 } else {
                     addRow('05/08/26', 'Shivcharan Singh', '', '3000', 'रुपये दुकान खाते में जमा आए');
                     addRow('08/08/26', 'Ganga Ram Gora', '38000', '', 'South ke truck wale ka bhada');
                 }
-            } catch(e) {
-                console.error(e);
-                addRow('05/08/26', 'Shivcharan Singh', '', '3000', 'रुपये दुकान खाते में जमा आए');
-            }
+
+                isRemoteUpdate = false;
+            });
         }
 
         function clearAllData() {
             if (confirm("क्या आप सारा डेटा हटाकर नया खाता शुरू करना चाहते हैं?")) {
-                localStorage.removeItem('ledgerRows');
-                var tbody = document.getElementById('tableBody');
-                if (tbody) tbody.innerHTML = '';
-                calculateTotals();
+                if (db) {
+                    db.ref('khataData').remove();
+                } else {
+                    var tbody = document.getElementById('tableBody');
+                    if (tbody) tbody.innerHTML = '';
+                    calculateTotals();
+                }
             }
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadFromLocalStorage);
+            document.addEventListener('DOMContentLoaded', listenToCloud);
         } else {
-            loadFromLocalStorage();
+            listenToCloud();
         }
     </script>
 </body>
 </html>
-    
