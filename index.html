@@ -41,14 +41,12 @@
 
     <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border-t-8 border-red-700 overflow-hidden">
         
-        <!-- Header with Centered Title & Centered Month Box -->
         <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-md text-center">
             <div class="flex items-center justify-center gap-2">
                 <span class="text-3xl">🚩</span>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">जय माता जी मार्बल एंड ग्रेनाइट</h1>
             </div>
             
-            <!-- Month Box (Just Above the Input Field & Centered) -->
             <div class="mt-4 inline-flex flex-col items-center justify-center bg-white/10 backdrop-blur-md px-6 py-2.5 rounded-xl border border-white/20 text-center">
                 <span class="text-xs text-red-100 font-semibold mb-1 text-center w-full">Month / महीना</span>
                 <input type="text" id="monthField" value="अगस्त - सितम्बर 2026" oninput="saveToLocalStorage()" class="bg-transparent text-white font-bold text-center focus:outline-none w-52 border-b border-white/40 text-base">
@@ -57,7 +55,6 @@
 
         <div class="p-4 md:p-6 space-y-6">
 
-            <!-- Voice Control Bar (Hold to Speak) -->
             <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
                 <div class="flex items-center gap-4">
                     <button id="micBtn" type="button" 
@@ -86,7 +83,6 @@
                 </div>
             </div>
 
-            <!-- Ledger Table -->
             <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
                 <table class="w-full text-left text-sm border-collapse" id="ledgerTable">
                     <thead>
@@ -100,12 +96,10 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 bg-white">
-                        <!-- Dynamic Rows -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
-            <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
                 <div class="bg-white border-2 border-red-100 p-4 rounded-xl shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm border-b pb-2 mb-2 flex justify-between">
@@ -221,31 +215,90 @@
         }
 
         function parseAndAddRow(text) {
-            var lower = text.toLowerCase();
+            var lower = text.toLowerCase().trim();
+
+            // 1. Partner Name Detection
             var name = "Shivcharan Singh";
-            
-            if (lower.indexOf("ganga") !== -1 || lower.indexOf("गंगा") !== -1 || lower.indexOf("gora") !== -1 || lower.indexOf("गौरा") !== -1 || lower.indexOf("ram") !== -1 || lower.indexOf("राम") !== -1 || lower.indexOf("g") !== -1) {
+            if (lower.indexOf("ganga") !== -1 || lower.indexOf("गंगा") !== -1 || 
+                lower.indexOf("gora") !== -1 || lower.indexOf("गौरा") !== -1 || 
+                lower.indexOf("ram") !== -1 || lower.indexOf("राम") !== -1 || lower.indexOf("गंगाराम") !== -1) {
                 name = "Ganga Ram Gora";
+            } else if (lower.indexOf("shiv") !== -1 || lower.indexOf("शिव") !== -1 || 
+                       lower.indexOf("charan") !== -1 || lower.indexOf("चरण") !== -1 || 
+                       lower.indexOf("singh") !== -1 || lower.indexOf("सिंह") !== -1) {
+                name = "Shivcharan Singh";
             }
 
-            var numbers = text.match(/\d+/g);
-            var amount = numbers ? numbers[numbers.length - 1] : "";
-
-            var debit = "", credit = "";
-            if (lower.indexOf("aaye") !== -1 || lower.indexOf("आए") !== -1 || lower.indexOf("आया") !== -1 || lower.indexOf("jama") !== -1 || lower.indexOf("जमा") !== -1 || lower.indexOf("credit") !== -1) {
-                credit = amount;
-            } else {
-                debit = amount;
+            // 2. Remarks Detection (Only if 'remark' / 'rimaark' / 'रिमार्क' / 'रीमार्क' / 'विवरण' is spoken)
+            var remarks = "";
+            var remarkMatch = text.match(/(?:remark|rimaark|रिमार्क|रीमार्क|विवरण)\s*(.*)/i);
+            if (remarkMatch && remarkMatch[1]) {
+                remarks = remarkMatch[1].trim();
             }
 
-            var dateStr = "05/08/26";
-            if (numbers && numbers.length > 1) {
-                var d = numbers[0];
-                if (parseInt(d) < 10 && d.length === 1) d = "0" + d;
-                dateStr = d + "/08/26";
+            // Text portion before 'remark' for parsing date and amount clean
+            var mainText = text.split(/(?:remark|rimaark|रिमार्क|रीमार्क|विवरण)/i)[0].toLowerCase();
+
+            // 3. Amount & Credit/Debit Detection
+            var numbers = mainText.match(/\d+/g);
+            var isCredit = (mainText.indexOf("aaye") !== -1 || mainText.indexOf("आए") !== -1 || 
+                            mainText.indexOf("आया") !== -1 || mainText.indexOf("aaya") !== -1 || 
+                            mainText.indexOf("jama") !== -1 || mainText.indexOf("जमा") !== -1 || 
+                            mainText.indexOf("credit") !== -1 || mainText.indexOf("क्रेडिट") !== -1);
+
+            var amount = "";
+            var dayVal = null;
+
+            // Month mapping
+            var monthsMap = {
+                "january": "01", "जनवरी": "01", "jan": "01",
+                "february": "02", "फरवरी": "02", "feb": "02",
+                "march": "03", "मार्च": "03", "mar": "03",
+                "april": "04", "अप्रैल": "04", "apr": "04",
+                "may": "05", "मई": "05",
+                "june": "06", "जून": "06", "jun": "06",
+                "july": "07", "जुलाई": "07", "jul": "07",
+                "august": "08", "अगस्त": "08", "aug": "08",
+                "september": "09", "सितम्बर": "09", "सितंबर": "09", "sep": "09", "sept": "09",
+                "october": "10", "अक्टूबर": "10", "अक्तूबर": "10", "oct": "10",
+                "november": "11", "नवंबर": "11", "नवेम्बर": "11", "nov": "11",
+                "december": "12", "दिसंबर": "12", "दिसम्बर": "12", "dec": "12"
+            };
+
+            var detectedMonth = null;
+            for (var mKey in monthsMap) {
+                if (mainText.indexOf(mKey) !== -1) {
+                    detectedMonth = monthsMap[mKey];
+                    break;
+                }
             }
 
-            addRow(dateStr, name, debit, credit, text);
+            if (numbers && numbers.length >= 2) {
+                var dNum = parseInt(numbers[0], 10);
+                if (dNum >= 1 && dNum <= 31) {
+                    dayVal = dNum < 10 ? ("0" + dNum) : ("" + dNum);
+                    amount = numbers[numbers.length - 1];
+                } else {
+                    amount = numbers[numbers.length - 1];
+                }
+            } else if (numbers && numbers.length === 1) {
+                amount = numbers[0];
+            }
+
+            // Today's date fallback
+            var today = new Date();
+            var curDay = today.getDate() < 10 ? "0" + today.getDate() : "" + today.getDate();
+            var curMonth = (today.getMonth() + 1) < 10 ? "0" + (today.getMonth() + 1) : "" + (today.getMonth() + 1);
+            var curYear = today.getFullYear().toString().slice(-2);
+
+            var finalDay = dayVal ? dayVal : curDay;
+            var finalMonth = detectedMonth ? detectedMonth : curMonth;
+            var dateStr = finalDay + "/" + finalMonth + "/" + curYear;
+
+            var debit = isCredit ? "" : amount;
+            var credit = isCredit ? amount : "";
+
+            addRow(dateStr, name, debit, credit, remarks);
         }
 
         function addRow(date, particular, debit, credit, remarks) {
@@ -306,7 +359,6 @@
                     grCredit += c;
                 }
             }
-
             var formatINR = function(num) {
                 return num.toLocaleString('en-IN');
             };
@@ -360,7 +412,7 @@
                         credit: credInput ? credInput.value : '',
                         remarks: remInput ? remInput.value : ''
                     });
-       }
+                }
                 localStorage.setItem('ledgerRows', JSON.stringify(rowsData));
                 var monthEl = document.getElementById('monthField');
                 if (monthEl) localStorage.setItem('ledgerMonth', monthEl.value);
@@ -412,3 +464,4 @@
     </script>
 </body>
 </html>
+    
